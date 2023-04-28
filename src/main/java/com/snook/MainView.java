@@ -16,15 +16,22 @@ import javafx.scene.transform.NonInvertibleTransformException;
 
 public class MainView extends VBox {
 
+    public static final int  EDITING = 0;
+    public static final int  SIMULATING = 1;
+
     private InfoBar infoBar;
     private Toolbar toolbar;
     private Canvas canvas;
     private Affine affine;
 
-    Simulation simulation;
+    private Simulation simulation;
+    private Simulation initialSimulation;
+
+    private Simulator simulator;
 
     private int drawMode = Simulation.ALIVE;
 
+    private int applicationState = EDITING;
     public MainView() {
 
         this.canvas = new Canvas(400, 400);
@@ -50,7 +57,8 @@ public class MainView extends VBox {
         this.affine.appendScale(400/10f, 400/10f);
 
 
-        this.simulation = new Simulation(10, 10);
+        this.initialSimulation = new Simulation(10, 10);
+        this.simulation = Simulation.copy(initialSimulation);
     }
 
     private void handledMoved(MouseEvent mouseEvent) {
@@ -61,16 +69,21 @@ public class MainView extends VBox {
     private void onKeyPressed(KeyEvent keyEvent) {
         System.out.println("Pressed key");
         if(keyEvent.getCode() == KeyCode.D) {
-            this.drawMode = Simulation.ALIVE;
+            this.setDrawMode(Simulation.ALIVE);
+            //this.drawMode = Simulation.ALIVE;
             System.out.println("Draw mode");
         } else if(keyEvent.getCode() == KeyCode.E) {
-            this.drawMode = Simulation.DEAD;
+            this.setDrawMode(Simulation.DEAD);
+            //this.drawMode = Simulation.DEAD;
             System.out.println("Erase mode");
         }
     }
 
     private void handleDraw(MouseEvent mouseEvent) {
 
+        if(applicationState == SIMULATING) {
+            return;
+        }
         Point2D simCoordinate = this.getSimulationCoordinate(mouseEvent);
 
         int simX = (int) simCoordinate.getX();
@@ -78,7 +91,7 @@ public class MainView extends VBox {
 
         System.out.println(simX + ", " + simY);
 
-        this.simulation.setState(simX, simY, drawMode);
+        this.initialSimulation.setState(simX, simY, drawMode);
 
         draw();
     }
@@ -96,18 +109,15 @@ public class MainView extends VBox {
 
     public void draw() {
         GraphicsContext g = this.canvas.getGraphicsContext2D();
-        g.setTransform(this.affine);
-
+        g.setTransform(this.affine)
+        ;
         g.setFill(Color.LIGHTGRAY);
         g.fillRect(0,0,450,450);
 
-        g.setFill(Color.BLACK);
-        for (int x = 0; x < this.simulation.width; x++) {
-            for (int y = 0; y < this.simulation.height; y++) {
-                if (this.simulation.getState(x, y) == Simulation.ALIVE) {
-                    g.fillRect(x, y, 1, 1);
-                }
-            }
+        if(this.applicationState == EDITING) {
+            drawSimulation(this.initialSimulation);
+        } else {
+            drawSimulation(this.simulation);
         }
 
         g.setStroke(Color.GRAY);
@@ -121,6 +131,18 @@ public class MainView extends VBox {
         canvas.requestFocus();
     }
 
+    private void drawSimulation(Simulation simulationToDraw) {
+        GraphicsContext g = this.canvas.getGraphicsContext2D();
+        g.setFill(Color.BLACK);
+        for (int x = 0; x < simulationToDraw.width; x++) {
+            for (int y = 0; y < simulationToDraw.height; y++) {
+                if (simulationToDraw.getState(x, y) == Simulation.ALIVE) {
+                    g.fillRect(x, y, 1, 1);
+                }
+            }
+        }
+    }
+
     public Simulation getSimulation() {
         return this.simulation;
     }
@@ -128,5 +150,22 @@ public class MainView extends VBox {
     public void setDrawMode(int newDrawMode) {
         this.drawMode = newDrawMode;
         this.infoBar.setDrawMode(newDrawMode);
+    }
+
+    public void setApplicationState(int applicationState) {
+        if(applicationState == this.applicationState) {
+            return;
+        }
+        if(applicationState == SIMULATING) {
+            this.simulation = Simulation.copy(this.initialSimulation);
+            this.simulator = new Simulator(this, this.simulation);
+        }
+
+        this.applicationState = applicationState;
+        System.out.println("Application State: " + this.applicationState);
+    }
+
+    public Simulator getSimulator() {
+        return simulator;
     }
 }

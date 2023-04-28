@@ -15,6 +15,17 @@ public class Simulation {
         this.board = new int[width][height];
     }
 
+    public static Simulation copy(Simulation simulation) {
+        Simulation simCopy = new Simulation(simulation.width, simulation.height);
+        for (int y = 0; y < simulation.height; y++) {
+            for (int x = 0; x < simulation.width; x++) {
+                simCopy.setState(x, y, simulation.getState(x, y));
+            }
+        }
+        return simCopy;
+    }
+
+
     public void printBoard() {
         System.out.println("---");
         for (int y = 0; y < height; y++) {

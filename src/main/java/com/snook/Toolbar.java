@@ -6,24 +6,44 @@ import javafx.scene.control.ToolBar;
 
 public class Toolbar extends ToolBar {
     private final MainView mainView;
-    Button draw;
-    Button erase;
-    Button step;
     public Toolbar(MainView mainView){
         this.mainView = mainView;
-        draw = new Button("Draw");
+        Button draw = new Button("Draw");
         draw.setOnAction(this::handleDraw);
-        erase = new Button("Erase");
+        Button erase = new Button("Erase");
         erase.setOnAction(this::handleErase);
-        step = new Button("Step");
+        Button step = new Button("Step");
         step.setOnAction(this::handleStep);
-        this.getItems().addAll(draw, erase, step);
+        Button reset = new Button("Reset");
+        reset.setOnAction(this::handleReset);
+        Button start = new Button("Start");
+        start.setOnAction(this::handleStart);
+        Button stop = new Button("Stop");
+        stop.setOnAction(this::handleStop);
+        this.getItems().addAll(draw, erase, reset, step, start, stop);
+    }
+
+    private void handleStop(ActionEvent actionEvent) {
+        this.mainView.getSimulator().stop();
+    }
+
+    private void handleStart(ActionEvent actionEvent) {
+        this.mainView.setApplicationState(MainView.SIMULATING);
+        this.mainView.getSimulator().start();
+    }
+
+    private void handleReset(ActionEvent actionEvent) {
+        this.mainView.setApplicationState(MainView.EDITING);
+        this.mainView.draw();
     }
 
     private void handleStep(ActionEvent actionEvent) {
+        System.out.println("Step Pressed");
+
+        this.mainView.setApplicationState(MainView.SIMULATING);
+
         this.mainView.getSimulation().step();
         this.mainView.draw();
-        System.out.println("Step Pressed");
     }
 
     private void handleDraw(ActionEvent actionEvent) {
