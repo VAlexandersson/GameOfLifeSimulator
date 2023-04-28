@@ -44,6 +44,7 @@ public class MainView extends VBox {
         this.canvas.setOnKeyPressed(this::onKeyPressed);
 
         this.toolbar = new Toolbar(this);
+
         this.infoBar = new InfoBar();
         this.infoBar.setDrawMode(this.drawMode);
         this.infoBar.setCursorPosition(0, 0);
