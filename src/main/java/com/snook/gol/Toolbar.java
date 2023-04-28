@@ -1,11 +1,13 @@
-package com.snook;
+package com.snook.gol;
 
+import com.snook.gol.model.CellState;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ToolBar;
 
 public class Toolbar extends ToolBar {
     private final MainView mainView;
+    private  Simulator simulator;
     public Toolbar(MainView mainView){
         this.mainView = mainView;
         Button draw = new Button("Draw");
@@ -24,36 +26,44 @@ public class Toolbar extends ToolBar {
     }
 
     private void handleStop(ActionEvent actionEvent) {
-        this.mainView.getSimulator().stop();
+        this.simulator.stop();
     }
 
     private void handleStart(ActionEvent actionEvent) {
-        this.mainView.setApplicationState(MainView.SIMULATING);
-        this.mainView.getSimulator().start();
+        switchToSimulatingState();
+        this.simulator.start();
     }
 
     private void handleReset(ActionEvent actionEvent) {
         this.mainView.setApplicationState(MainView.EDITING);
+        this.simulator = null;
         this.mainView.draw();
     }
 
     private void handleStep(ActionEvent actionEvent) {
         System.out.println("Step Pressed");
 
-        this.mainView.setApplicationState(MainView.SIMULATING);
+        switchToSimulatingState();
 
         this.mainView.getSimulation().step();
         this.mainView.draw();
     }
 
+
+    private void switchToSimulatingState(){
+        if(this.mainView.getApplicationState() == MainView.EDITING) {
+            this.mainView.setApplicationState(MainView.SIMULATING);
+            this.simulator = new Simulator(this.mainView, this.mainView.getSimulation());
+        }
+    }
+
     private void handleDraw(ActionEvent actionEvent) {
         System.out.println("Draw Pressed");
-        this.mainView.setDrawMode(Simulation.ALIVE);
+        this.mainView.setDrawMode(CellState.ALIVE);
     }
     private void handleErase(ActionEvent actionEvent) {
         System.out.println("Erase Pressed");
-        this.mainView.setDrawMode(Simulation.DEAD);
+        this.mainView.setDrawMode(CellState.DEAD);
     }
-
 
 }

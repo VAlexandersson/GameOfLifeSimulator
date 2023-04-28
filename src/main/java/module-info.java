@@ -1,4 +1,5 @@
 module com.snook {
     requires javafx.controls;
-    exports com.snook;
+    exports com.snook.gol;
+    exports com.snook.gol.model;
 }

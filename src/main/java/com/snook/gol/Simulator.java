@@ -1,4 +1,4 @@
-package com.snook;
+package com.snook.gol;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
