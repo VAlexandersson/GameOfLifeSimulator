@@ -16,7 +16,7 @@ public class App extends Application {
     @Override
     public void start(Stage stage) {
 
-        Board board = new BoundedBoard(10, 10);
+        Board board = new BoundedBoard(20, 12);
 
         ApplicationViewModel appViewModel = new ApplicationViewModel(ApplicationState.EDITING);
         BoardViewModel boardViewModel = new BoardViewModel();
@@ -26,12 +26,11 @@ public class App extends Application {
         appViewModel.listenToAppState(editorViewModel::onAppStateChanged);
         appViewModel.listenToAppState(simulationViewModel::onAppStateChanged);
 
+        boardViewModel.setBoard(board);
         MainView mainView = new MainView(appViewModel, boardViewModel, editorViewModel, simulationViewModel);
         Scene scene = new Scene(mainView, 640, 480);
         stage.setScene(scene);
         stage.show();
-
-        boardViewModel.setBoard(board);
     }
 
     public static void main(String[] args) {
