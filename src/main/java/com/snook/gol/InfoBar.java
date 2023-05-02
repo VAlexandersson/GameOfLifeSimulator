@@ -1,6 +1,7 @@
 package com.snook.gol;
 
 import com.snook.gol.model.CellState;
+import com.snook.gol.viewmodel.EditorViewModel;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -14,7 +15,8 @@ public class InfoBar extends HBox {
     private Label cursor;
     private Label editingTool;
 
-    public InfoBar() {
+    public InfoBar(EditorViewModel editorViewModel) {
+        editorViewModel.listenToDrawMode(this::setDrawMode);
         this.editingTool = new Label();
         this.cursor = new Label();
 
@@ -26,7 +28,7 @@ public class InfoBar extends HBox {
         this.getChildren().addAll(this.editingTool, spacer, this.cursor);
     }
 
-    public void setDrawMode(CellState drawMode) {
+    private void setDrawMode(CellState drawMode) {
         String drawModeString;
         if(drawMode == CellState.ALIVE){
             drawModeString = "Drawing";

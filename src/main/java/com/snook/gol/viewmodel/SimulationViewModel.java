@@ -1,21 +1,27 @@
-package com.snook.gol;
+package com.snook.gol.viewmodel;
 
-import com.snook.gol.viewmodel.BoardViewModel;
+import com.snook.gol.Simulation;
+import com.snook.gol.model.StandardRule;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.event.ActionEvent;
 import javafx.util.Duration;
 
-public class Simulator {
+public class SimulationViewModel {
 
     private Timeline timeline;
     private final BoardViewModel boardViewModel;
     private Simulation simulation;
-    public Simulator(BoardViewModel boardViewModel, Simulation simulation) {
+    public SimulationViewModel(BoardViewModel boardViewModel) {
         this.boardViewModel = boardViewModel;
-        this.simulation = simulation;
         this.timeline = new Timeline(new KeyFrame(Duration.millis(500), event -> this.doStep()));
         this.timeline.setCycleCount(Timeline.INDEFINITE);
+    }
+
+    public void onAppStateChanged(ApplicationState state) {
+        if(state == ApplicationState.SIMULATING) {
+            this.simulation = new Simulation(boardViewModel.getBoard(), new StandardRule());
+        }
+
     }
 
     public void doStep() {

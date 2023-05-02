@@ -1,12 +1,11 @@
 package com.snook.gol;
 
 import com.snook.gol.model.Board;
-import com.snook.gol.model.BoundedBoard;
 import com.snook.gol.model.CellState;
-import com.snook.gol.model.StandardRule;
-import com.snook.gol.viewmodel.ApplicationState;
 import com.snook.gol.viewmodel.ApplicationViewModel;
 import com.snook.gol.viewmodel.BoardViewModel;
+import com.snook.gol.viewmodel.EditorViewModel;
+import com.snook.gol.viewmodel.SimulationViewModel;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -23,26 +22,19 @@ import javafx.scene.transform.NonInvertibleTransformException;
 public class MainView extends VBox {
 
     private InfoBar infoBar;
-    private Toolbar toolbar;
     private Canvas canvas;
 
     private Affine affine;
 
-    private Board initialBoard;
+    private final EditorViewModel editorViewModel;
 
-    private CellState drawMode = CellState.ALIVE;
-
-    private ApplicationViewModel appViewModel;
     private final BoardViewModel boardViewModel;
 
-    private boolean isDrawingEnabled = true;
+    public MainView(ApplicationViewModel appViewModel, BoardViewModel boardViewModel, EditorViewModel editorViewModel, SimulationViewModel simulationViewModel) {
 
-    public MainView(ApplicationViewModel appViewModel, BoardViewModel boardViewModel, Board initialBoard) {
-        this.appViewModel = appViewModel;
         this.boardViewModel = boardViewModel;
-        this.initialBoard = initialBoard;
+        this.editorViewModel = editorViewModel;
 
-        this.appViewModel.listenToAppState(this::onApplicationStateChanged);
         this.boardViewModel.listenToBoard(this::onBoardChanged);
 
         this.canvas = new Canvas(400, 400);
@@ -52,10 +44,9 @@ public class MainView extends VBox {
 
         this.canvas.setOnKeyPressed(this::onKeyPressed);
 
-        this.toolbar = new Toolbar(this, appViewModel, boardViewModel);
+        Toolbar toolbar = new Toolbar(editorViewModel, appViewModel, simulationViewModel);
 
-        this.infoBar = new InfoBar();
-        this.infoBar.setDrawMode(this.drawMode);
+        this.infoBar = new InfoBar(editorViewModel);
         this.infoBar.setCursorPosition(0, 0);
 
         Pane spacer = new Pane();
@@ -67,24 +58,12 @@ public class MainView extends VBox {
 
         this.affine = new Affine();
         this.affine.appendScale(400/10f, 400/10f);
-
-
     }
 
     private void onBoardChanged(Board board) {
         draw(board);
     }
 
-    private void onApplicationStateChanged(ApplicationState state){
-        if(state == ApplicationState.EDITING) {
-            this.isDrawingEnabled = true;
-            this.boardViewModel.setBoard(this.initialBoard);
-        } else if (state == ApplicationState.SIMULATING){
-            this.isDrawingEnabled = false;
-        } else {
-            throw new IllegalArgumentException("Unsupported ApplicationState " + state.name());
-        }
-    }
 
     private void handledMoved(MouseEvent mouseEvent) {
         Point2D simCoordinate = this.getSimulationCoordinate(mouseEvent);
@@ -92,21 +71,14 @@ public class MainView extends VBox {
     }
 
     private void onKeyPressed(KeyEvent keyEvent) {
-        System.out.println("Pressed key");
         if(keyEvent.getCode() == KeyCode.D) {
-            this.setDrawMode(CellState.ALIVE);
-            System.out.println("Draw mode");
+            this.editorViewModel.setDrawMode(CellState.ALIVE);
         } else if(keyEvent.getCode() == KeyCode.E) {
-            this.setDrawMode(CellState.DEAD);
-            System.out.println("Erase mode");
+            this.editorViewModel.setDrawMode(CellState.ALIVE);
         }
     }
 
     private void handleDraw(MouseEvent mouseEvent) {
-
-        if(!isDrawingEnabled) {
-            return;
-        }
         Point2D simCoordinate = this.getSimulationCoordinate(mouseEvent);
 
         int simX = (int) simCoordinate.getX();
@@ -114,8 +86,7 @@ public class MainView extends VBox {
 
         System.out.println(simX + ", " + simY);
 
-        this.initialBoard.setState(simX, simY, drawMode);
-        this.boardViewModel.setBoard(this.initialBoard);
+        this.editorViewModel.boardPressed(simX, simY);
     }
 
     private Point2D getSimulationCoordinate(MouseEvent mouseEvent) {
@@ -159,10 +130,5 @@ public class MainView extends VBox {
                 }
             }
         }
-    }
-
-    public void setDrawMode(CellState newDrawMode) {
-        this.drawMode = newDrawMode;
-        this.infoBar.setDrawMode(newDrawMode);
     }
 }

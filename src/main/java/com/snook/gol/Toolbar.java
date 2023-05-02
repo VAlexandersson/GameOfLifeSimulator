@@ -2,23 +2,21 @@ package com.snook.gol;
 
 import com.snook.gol.model.CellState;
 import com.snook.gol.model.StandardRule;
-import com.snook.gol.viewmodel.ApplicationState;
-import com.snook.gol.viewmodel.ApplicationViewModel;
-import com.snook.gol.viewmodel.BoardViewModel;
+import com.snook.gol.viewmodel.*;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ToolBar;
 
 public class Toolbar extends ToolBar {
-    private MainView mainView;
-    private final BoardViewModel boardViewModel;
-    private final ApplicationViewModel applicationViewModel;
 
-    private  Simulator simulator;
-    public Toolbar(MainView mainView, ApplicationViewModel applicationViewModel, BoardViewModel boardViewModel){
+    private final EditorViewModel editorViewModel;
+    private final ApplicationViewModel applicationViewModel;
+    private final SimulationViewModel simulationViewModel;
+
+    public Toolbar(EditorViewModel editorViewModel, ApplicationViewModel applicationViewModel, SimulationViewModel simulationViewModel){
+        this.editorViewModel = editorViewModel;
         this.applicationViewModel = applicationViewModel;
-        this.mainView = mainView;
-        this.boardViewModel = boardViewModel;
+        this.simulationViewModel = simulationViewModel;
         Button draw = new Button("Draw");
         draw.setOnAction(this::handleDraw);
         Button erase = new Button("Erase");
@@ -35,46 +33,40 @@ public class Toolbar extends ToolBar {
     }
 
     private void handleStop(ActionEvent actionEvent) {
-        this.simulator.stop();
+        this.simulationViewModel.stop();
     }
 
     private void handleStart(ActionEvent actionEvent) {
         System.out.println("Start Pressed");
-
         switchToSimulatingState();
-        this.simulator.start();
+        this.simulationViewModel.start();
     }
 
     private void handleReset(ActionEvent actionEvent) {
         System.out.println("Reset Pressed");
-
         this.applicationViewModel.setCurrentState(ApplicationState.EDITING);
-        this.simulator = null;
     }
 
     private void handleStep(ActionEvent actionEvent) {
         System.out.println("Step Pressed");
-
         switchToSimulatingState();
-        this.simulator.doStep();
+        this.simulationViewModel.doStep();
     }
 
 
     private void switchToSimulatingState(){
         this.applicationViewModel.setCurrentState(ApplicationState.SIMULATING);
-        Simulation simulation = new Simulation(boardViewModel.getBoard(), new StandardRule());
-        this.simulator = new Simulator(this.boardViewModel, simulation);
+//        Simulation simulation = new Simulation(boardViewModel.getBoard(), new StandardRule());
+//        this.simulator = new SimulationViewModel(this.boardViewModel, simulation);
     }
 
     private void handleDraw(ActionEvent actionEvent) {
         System.out.println("Draw Pressed");
-
-        this.mainView.setDrawMode(CellState.ALIVE);
+        this.editorViewModel.setDrawMode(CellState.ALIVE);
     }
     private void handleErase(ActionEvent actionEvent) {
         System.out.println("Erase Pressed");
-
-        this.mainView.setDrawMode(CellState.DEAD);
+        this.editorViewModel.setDrawMode(CellState.DEAD);
     }
 
 }
