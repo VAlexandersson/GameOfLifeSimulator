@@ -21,7 +21,6 @@ public class SimulationViewModel {
         if(state == ApplicationState.SIMULATING) {
             this.simulation = new Simulation(boardViewModel.getBoard(), new StandardRule());
         }
-
     }
 
     public void doStep() {

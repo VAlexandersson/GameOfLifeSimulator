@@ -68,8 +68,7 @@ public class SimulationCanvas extends Pane {
 
     private void draw(Board board) {
         GraphicsContext g = this.canvas.getGraphicsContext2D();
-        g.setTransform(this.affine)
-        ;
+        g.setTransform(this.affine);
         g.setFill(Color.LIGHTGRAY);
         g.fillRect(0,0,450,450);
 
