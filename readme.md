@@ -1,7 +1,7 @@
- GameOfLife
+# Game Of Life with a MVVM architecture
 
 
-#### MVVM
+#### MVVM Arch.
 ```mermaid
 graph LR
 
