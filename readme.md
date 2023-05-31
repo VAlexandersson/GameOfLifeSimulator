@@ -1,5 +1,7 @@
-# Game Of Life with a MVVM architecture
+# Conway's Game of Life in JavaFX
+_Still under development_
 
+---
 
 #### MVVM Arch.
 ```mermaid
