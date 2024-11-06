@@ -1,5 +1,4 @@
 # Conway's Game of Life in JavaFX
-_Still under development_
 
 ---
 
